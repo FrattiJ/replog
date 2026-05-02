@@ -663,13 +663,13 @@ function showToast(msg){
 }
 
 // ── SUPABASE CONFIG ───────────────────────────────────────────────────────────
-// Replace the two lines below with your actual values from Supabase > Settings > API
-var SUPABASE_URL = process.env.SUPABASE_URL;
-var SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY;
+var SUPABASE_URL = "https://xthvbrnfuxxghzfmtgua.supabase.co/rest/v1/";
+var SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh0aHZicm5mdXh4Z2h6Zm10Z3VhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc3NTQ4NDEsImV4cCI6MjA5MzMzMDg0MX0.CL3zV_om1TGWwgr03CFwpyun7HnWH5ImJh_iQgtpetU";
+var USER_ID = "Jacob Fratti";
 
-// A fixed user ID so all your data is grouped together.
-// Change this to any string you like, e.g. your name or initials.
-var USER_ID = process.env.USER_ID;
+if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+  console.error("Missing Supabase environment variables.");
+}
 
 var SUPA_HEADERS = {
   'Content-Type': 'application/json',
