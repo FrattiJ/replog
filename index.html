@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>RepLog</title>
@@ -100,7 +101,29 @@ nav{background:var(--surf);border-bottom:1px solid var(--bdr);display:flex}
 .empty{text-align:center;padding:48px 20px;color:var(--muted);font-family:'DM Mono',monospace;font-size:11px;letter-spacing:1px;text-transform:uppercase;line-height:2.2}
 .toast{position:fixed;top:14px;right:14px;background:var(--acc);color:#080808;font-family:'DM Mono',monospace;font-size:11px;letter-spacing:1px;text-transform:uppercase;padding:9px 14px;border-radius:8px;opacity:0;transition:opacity .3s;pointer-events:none;z-index:999}
 .toast.on{opacity:1}
+.no-spin::-webkit-outer-spin-button,
+.no-spin::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.no-spin {
+  -moz-appearance: textfield;
+}
+
+.psearchbox{background:var(--surf);border:1px solid var(--bdr);border-radius:10px;padding:10px;margin-bottom:14px}
+.psearch{width:100%;background:var(--surf2);border:1px solid var(--bdr2);border-radius:7px;padding:10px 12px;color:var(--text);font-family:'DM Mono',monospace;font-size:11px;text-transform:uppercase;letter-spacing:1px}
+.psearch:focus{outline:none;border-color:var(--acc)}
+.pselected{font-family:'DM Mono',monospace;font-size:10px;color:var(--acc);text-transform:uppercase;letter-spacing:1px;margin-top:9px}
+.poptions{
+  margin-top:10px;
+  border-top:1px solid var(--bdr);
+  padding-top:8px;
+}
+.popt{width:100%;text-align:left;background:none;border:none;color:var(--muted);font-family:'DM Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:1px;padding:8px 6px;border-radius:6px}
+.popt.on,.popt:active{background:#c8f13510;color:var(--acc)}
 </style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 
@@ -115,6 +138,16 @@ nav{background:var(--surf);border-bottom:1px solid var(--bdr);display:flex}
   <button class="tab" onclick="showPage('progress',this)">Progress</button>
 </nav>
 
+<div id="authbox" class="page on">
+  <div class="pcard">
+    <div class="pctitle">Login</div>
+    <input id="email" class="sinp" type="email" placeholder="Email">
+    <input id="password" class="sinp" type="password" placeholder="Password" style="margin-top:8px">
+    <button class="savebtn" style="margin-top:10px" onclick="signIn()">Login</button>
+    <button class="addbtn" onclick="signUp()">Create Account</button>
+  </div>
+</div>
+
 <div class="page on" id="pg-today">
   <div class="dstrip" id="dstrip"></div>
   <div id="warea"></div>
@@ -124,7 +157,11 @@ nav{background:var(--surf);border-bottom:1px solid var(--bdr);display:flex}
   <div id="hlist"></div>
 </div>
 <div class="page" id="pg-progress">
-  <select class="psel" id="psel" onchange="renderProgress()"></select>
+<div class="psearchbox">
+  <input id="psearch" class="psearch" type="text" placeholder="Search exercise..." oninput="renderExerciseOptions()">
+  <div id="pselected" class="pselected">Body Weight</div>
+  <div id="poptions" class="poptions"></div>
+</div>
   <div id="pcontent"></div>
 </div>
 
@@ -134,6 +171,9 @@ nav{background:var(--surf);border-bottom:1px solid var(--bdr);display:flex}
 <div class="toast" id="toast"></div>
 
 <script>
+
+  var progressExercises = [];
+var currentExercise = 'Body Weight';
 var DAYS = [
   { id:"mon", label:"MON", tag:"Home", type:"Home — Upper Body", badge:"bh",
     sections:[
@@ -290,6 +330,10 @@ function saveStore() {
 }
 
 function showPage(name, btn) {
+  if(!currentUser){
+    showToast('Please log in first');
+    return;
+  }
   document.querySelectorAll('.page').forEach(function(p){ p.classList.remove('on'); });
   document.querySelectorAll('.tab').forEach(function(t){ t.classList.remove('on'); });
   document.getElementById('pg-'+name).classList.add('on');
@@ -334,18 +378,48 @@ function getPrev(exName) {
   return null;
 }
 
+function getTargetSetCount(target) {
+  var match = String(target).match(/^(\d+)\s*x/i);
+  return match ? parseInt(match[1]) : 1;
+}
+
 function renderWorkout() {
   var day = DAYS[selDay];
   var did = day.id;
   if(!sess[did]) sess[did]={};
   var html='';
 
+var currentWeight = sess[did].bodyWeight || '';
+
+html += '<div class="ec open" data-did="'+did+'">';
+html += '<div class="ech">';
+html += '<div class="ecname">Body Weight</div>';
+html += '<div class="ectarget">Daily</div>';
+html += '</div>';
+html += '<div class="ecbody">';
+html += '<div style="display:grid;grid-template-columns:1fr 80px;gap:8px;">';
+html += '<input class="sinp no-spin" type="text" inputmode="decimal" placeholder="Enter weight" value="'+currentWeight+'" data-action="bodyweight">';
+html += '<button class="addbtn" style="margin-top:0" data-action="logweight">Log</button>';
+html += '</div>';
+html += '</div></div>';
+
   day.sections.forEach(function(sec){
     html += '<div class="slbl">'+sec.name+'</div>';
     sec.exercises.forEach(function(ex, ei){
       var eid = did+'_s'+sec.name.replace(/\W/g,'')+'_'+ei;
       var prev = getPrev(ex.n);
-      var sets = sess[did][ex.n] || [];
+var sets = sess[did][ex.n];
+
+if(!sets){
+  var setCount = getTargetSetCount(ex.t);
+  sets = [];
+
+  for(var si = 0; si < setCount; si++){
+    sets.push({reps:'', weight:''});
+  }
+
+  sess[did][ex.n] = sets;
+}
       var prevTxt = prev
         ? (prev.mw>0 ? 'Last: '+prev.mw+'lbs' : 'Last: '+prev.sets[0].reps+' reps')
         : 'No history';
@@ -399,8 +473,8 @@ function renderWorkout() {
 function makeSetRow(idx, reps, weight) {
   return '<div class="sr" data-idx="'+idx+'">'
     +'<div class="snum">'+(idx+1)+'</div>'
-    +'<input class="sinp" type="number" inputmode="numeric" placeholder="--" value="'+(reps||'')+'" data-field="reps" data-idx="'+idx+'">'
-    +'<input class="sinp" type="number" inputmode="decimal" placeholder="--" value="'+(weight||'')+'" data-field="weight" data-idx="'+idx+'">'
+    +'<input class="sinp no-spin" type="text" inputmode="numeric" placeholder="--" value="'+(reps||'')+'" data-field="reps" data-idx="'+idx+'">'
+    +'<input class="sinp no-spin" type="text" inputmode="decimal" placeholder="--" value="'+(weight||'')+'" data-field="weight" data-idx="'+idx+'">'
     +'<button class="delbtn" data-action="delset" data-idx="'+idx+'">x</button>'
     +'</div>';
 }
@@ -417,10 +491,42 @@ function getExName(card) {
 document.getElementById('warea').addEventListener('click', function(e){
   var card = e.target.closest('.ec');
   if(!card) return;
-  var did = card.dataset.did;
+
+  var did = card.dataset.did || DAYS[selDay].id;
 
   if(e.target.closest('[data-action="toggle"]')){
     card.classList.toggle('open');
+    return;
+  }
+
+  if(e.target.closest('[data-action="logweight"]')){
+    var input = card.querySelector('[data-action="bodyweight"]');
+    var weight = input ? input.value.trim() : '';
+
+    if(!weight){
+      showToast('Enter weight first!');
+      return;
+    }
+
+    var now = new Date();
+
+    hist.push({
+      id: Date.now(),
+      date: now.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}),
+      type: 'Body Weight',
+      did: 'weight',
+      badge: 'bm',
+      bodyWeight: weight,
+      ex: {}
+    });
+
+    if(!sess[did]) sess[did] = {};
+    sess[did].bodyWeight = '';
+
+    saveStore();
+    showToast('Weight logged!');
+    renderWorkout();
+
     return;
   }
 
@@ -431,24 +537,31 @@ document.getElementById('warea').addEventListener('click', function(e){
     if(!sess[did][exName]) sess[did][exName]=[];
     sess[did][exName].push({reps:'',weight:''});
     saveStore();
+
     var cardId = card.id;
     renderWorkout();
+
     var recard = document.getElementById(cardId);
     if(recard) recard.classList.add('open');
+
     return;
   }
 
   var delEl = e.target.closest('[data-action="delset"]');
   if(delEl){
     var idx = parseInt(delEl.dataset.idx);
+
     if(sess[did] && sess[did][exName]){
       sess[did][exName].splice(idx,1);
       saveStore();
+
       var cardId2 = card.id;
       renderWorkout();
+
       var recard2 = document.getElementById(cardId2);
       if(recard2) recard2.classList.add('open');
     }
+
     return;
   }
 });
@@ -457,8 +570,16 @@ document.getElementById('warea').addEventListener('change', function(e){
   var inp = e.target;
   var card = inp.closest('.ec');
   if(!card) return;
-  var did = card.dataset.did;
-  var exName = getExName(card);
+var did = card.dataset.did || DAYS[selDay].id;
+
+if (inp.dataset.action === 'bodyweight') {
+  if (!sess[did]) sess[did] = {};
+  sess[did].bodyWeight = inp.value;
+  saveStore();
+  return;
+}
+
+var exName = getExName(card);
 
   if(inp.dataset.action === 'note'){
     if(!sess[did]) sess[did]={};
@@ -495,16 +616,18 @@ function saveSession() {
     }
   });
 
-  var cleanData = {};
-  Object.keys(data).forEach(function(k){
-    if(k.indexOf('__note')===-1) cleanData[k] = data[k];
-  });
+var cleanData = {};
+var bodyWeight = data.bodyWeight || '';
+
+Object.keys(data).forEach(function(k){
+  if(k.indexOf('__note')===-1 && k !== 'bodyWeight') cleanData[k] = data[k];
+});
 
   var now = new Date();
   hist.push({
     id: Date.now(),
     date: now.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}),
-    type: day.type, did: day.id, badge: day.badge,
+    type: day.type, did: day.id, badge: day.badge, bodyWeight: bodyWeight,
     ex: JSON.parse(JSON.stringify(cleanData))
   });
   sess[did]={};
@@ -533,7 +656,10 @@ function renderHistory() {
     var tot = exKeys.reduce(function(a,k){ return a+(entry.ex[k]||[]).length; },0);
     return '<div class="hcard" data-hid="'+entry.id+'">'
       +'<div class="hhead" data-action="togglehist">'
-      +'<div><div class="hdatetxt">'+entry.date+'</div><div class="htype">'+entry.type+' · '+tot+' sets</div></div>'
+      +'<div><div class="hdatetxt">'+entry.date+'</div><div class="htype">'
++entry.type+' · '+tot+' sets'
++(entry.bodyWeight ? ' · BW: '+entry.bodyWeight+' lbs' : '')
++'</div></div>'
       +'<span class="badge '+(entry.badge||'bs')+'">'+entry.did.toUpperCase()+'</span>'
       +'</div>'
       +'<div class="hbody">'
@@ -572,6 +698,7 @@ document.getElementById('hlist').addEventListener('click', function(e){
 
 function renderProgressPage() {
   var all=[];
+
   DAYS.forEach(function(d){
     d.sections.forEach(function(s){
       s.exercises.forEach(function(e){
@@ -579,16 +706,95 @@ function renderProgressPage() {
       });
     });
   });
+
   all.sort();
-  document.getElementById('psel').innerHTML = all.map(function(e){
-    return '<option value="'+e+'">'+e+'</option>';
-  }).join('');
+  all.unshift('Body Weight');
+
+  progressExercises = all;
+  currentExercise = currentExercise || 'Body Weight';
+
+  document.getElementById('pselected').textContent = currentExercise;
+  renderExerciseOptions();
   renderProgress();
 }
 
+function renderExerciseOptions() {
+  var q = (document.getElementById('psearch').value || '').toLowerCase();
+
+  if(!q){
+    document.getElementById('poptions').innerHTML = '';
+    return;
+  }
+
+  var filtered = progressExercises.filter(function(e){
+    return e.toLowerCase().indexOf(q) !== -1;
+  }).slice(0, 3);
+
+  document.getElementById('poptions').innerHTML = filtered.map(function(e){
+    return '<button class="popt'+(e===currentExercise?' on':'')+'" data-ex="'+e+'">'+e+'</button>';
+  }).join('');
+}
+
+document.getElementById('poptions').addEventListener('click', function(e){
+  var btn = e.target.closest('.popt');
+  if(!btn) return;
+
+  currentExercise = btn.dataset.ex;
+
+  document.getElementById('pselected').textContent = currentExercise;
+  document.getElementById('psearch').value = '';
+
+  renderExerciseOptions();
+  renderProgress();
+});
+
+
 function renderProgress() {
-  var ex = document.getElementById('psel').value;
+var ex = currentExercise || 'Body Weight';
   var pts=[];
+  if (ex === 'Body Weight') {
+  hist.forEach(function(s){
+    if(s.bodyWeight){
+      pts.push({
+        date: s.date,
+        mw: parseFloat(s.bodyWeight) || 0,
+        mr: 0
+      });
+    }
+  });
+
+  if(pts.length===0){
+    document.getElementById('pcontent').innerHTML='<div class="empty">No body weight data yet.<br>Save a session with body weight first!</div>';
+    return;
+  }
+
+  var latest = pts[pts.length-1].mw;
+  var diff = pts.length > 1 ? latest - pts[0].mw : 0;
+
+  var html = '';
+  html += '<div class="prrow" style="background:#c8f13510;border:1px solid #c8f13525">'
+    +'<span class="prlbl" style="color:var(--acc2)">Latest Weight</span>'
+    +'<span class="prval" style="color:var(--acc)">'+latest+' lbs</span></div>';
+
+  if(pts.length > 1){
+    var ds = diff >= 0 ? '+'+diff.toFixed(1) : diff.toFixed(1);
+    html += '<div class="prrow" style="background:#3a8fff10;border:1px solid #3a8fff25">'
+      +'<span class="prlbl" style="color:#5599cc">Change</span>'
+      +'<span class="prval" style="color:var(--blue)">'+ds+' lbs</span></div>';
+  }
+
+  html += '<div class="pcard"><div class="pctitle">Body Weight Chart</div><canvas id="wc" height="150"></canvas></div>';
+  html += '<div class="pcard"><div class="pctitle">Body Weight Log</div>'
+    +pts.map(function(p){
+      return '<div class="prow"><span class="prowd">'+p.date+'</span>'
+        +'<span class="prowv">'+p.mw+' lbs</span></div>';
+    }).join('')+'</div>';
+
+  document.getElementById('pcontent').innerHTML = html;
+
+  if(pts.length > 1) drawChart('wc', pts.map(function(p){return p.date;}), pts.map(function(p){return p.mw;}));
+  return;
+}
   hist.forEach(function(s){
     if(s.ex&&s.ex[ex]&&s.ex[ex].length>0){
       var sets=s.ex[ex];
@@ -663,66 +869,126 @@ function showToast(msg){
 }
 
 // ── SUPABASE CONFIG ───────────────────────────────────────────────────────────
-var SUPABASE_URL = "https://xthvbrnfuxxghzfmtgua.supabase.co/rest/v1/";
+var SUPABASE_URL = "https://xthvbrnfuxxghzfmtgua.supabase.co";
 var SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh0aHZicm5mdXh4Z2h6Zm10Z3VhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc3NTQ4NDEsImV4cCI6MjA5MzMzMDg0MX0.CL3zV_om1TGWwgr03CFwpyun7HnWH5ImJh_iQgtpetU";
-var USER_ID = "Jacob Fratti";
 
-if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
-  console.error("Missing Supabase environment variables.");
+var supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+var currentUser = null;
+
+async function signUp() {
+  var email = document.getElementById('email').value.trim();
+  var password = document.getElementById('password').value.trim();
+
+  var result = await supabaseClient.auth.signUp({
+    email: email,
+    password: password
+  });
+
+  if(result.error){
+    showToast(result.error.message);
+    return;
+  }
+
+  showToast('Account created. Now log in.');
 }
 
-var SUPA_HEADERS = {
-  'Content-Type': 'application/json',
-  'apikey': SUPABASE_ANON_KEY,
-  'Authorization': 'Bearer ' + SUPABASE_ANON_KEY
-};
+async function signIn() {
+  var email = document.getElementById('email').value.trim();
+  var password = document.getElementById('password').value.trim();
 
-function supabaseLoad(callback) {
-  fetch(SUPABASE_URL + '/rest/v1/sessions?user_id=eq.' + USER_ID + '&limit=1', {
-    headers: SUPA_HEADERS
-  })
-  .then(function(r){ return r.json(); })
-  .then(function(rows){
-    if(rows && rows.length > 0 && rows[0].data){
-      var d = rows[0].data;
-      hist    = d.hist    || [];
-      sess    = d.sess    || {};
-      exNotes = d.exNotes || {};
-    }
-    callback();
-  })
-  .catch(function(err){
-    console.error('Supabase load error:', err);
-    try { hist    = JSON.parse(localStorage.getItem('rl3_h')||'[]'); } catch(e){ hist=[]; }
-    try { sess    = JSON.parse(localStorage.getItem('rl3_s')||'{}'); } catch(e){ sess={}; }
-    try { exNotes = JSON.parse(localStorage.getItem('rl3_n')||'{}'); } catch(e){ exNotes={}; }
-    callback();
+  var result = await supabaseClient.auth.signInWithPassword({
+    email: email,
+    password: password
+  });
+
+  if(result.error){
+    showToast(result.error.message);
+    return;
+  }
+
+  currentUser = result.data.user;
+  startApp();
+}
+
+async function startApp() {
+  var result = await supabaseClient.auth.getUser();
+
+  if(!result.data.user){
+    currentUser = null;
+    document.getElementById('authbox').style.display = 'block';
+    document.getElementById('pg-today').classList.remove('on');
+    document.getElementById('pg-history').classList.remove('on');
+    document.getElementById('pg-progress').classList.remove('on');
+    document.getElementById('savebar').style.display = 'none';
+    return;
+  }
+
+  currentUser = result.data.user;
+
+  document.getElementById('authbox').style.display = 'none';
+  document.getElementById('pg-today').classList.add('on');
+  document.getElementById('savebar').style.display = 'block';
+
+  initDate();
+  renderStrip();
+
+  supabaseLoad(function(){
+    renderStrip();
+    renderWorkout();
   });
 }
 
-function saveStore() {
+async function supabaseLoad(callback) {
+  var result = await supabaseClient
+    .from('sessions')
+    .select('*')
+    .eq('auth_user_id', currentUser.id)
+    .limit(1)
+    .maybeSingle();
+
+  if(result.error){
+    console.error('Supabase load error:', result.error);
+    callback();
+    return;
+  }
+
+  if(result.data && result.data.data){
+    var d = result.data.data;
+    hist = d.hist || [];
+    sess = d.sess || {};
+    exNotes = d.exNotes || {};
+  }
+
+  callback();
+}
+
+async function saveStore() {
   var payload = { hist: hist, sess: sess, exNotes: exNotes };
+
   localStorage.setItem('rl3_h', JSON.stringify(hist));
   localStorage.setItem('rl3_s', JSON.stringify(sess));
   localStorage.setItem('rl3_n', JSON.stringify(exNotes));
-  fetch(SUPABASE_URL + '/rest/v1/sessions', {
-    method: 'POST',
-    headers: Object.assign({}, SUPA_HEADERS, { 'Prefer': 'resolution=merge-duplicates' }),
-    body: JSON.stringify({
-      user_id: USER_ID,
+
+  if(!currentUser) return;
+
+  var result = await supabaseClient
+    .from('sessions')
+    .upsert({
+      auth_user_id: currentUser.id,
+      user_id: currentUser.email,
       data: payload,
       updated_at: new Date().toISOString()
-    })
-  })
-  .catch(function(err){ console.error('Supabase save error:', err); });
+    }, {
+      onConflict: 'auth_user_id'
+    });
+
+  if(result.error){
+    console.error('Supabase save error:', result.error);
+    showToast('Save failed');
+  }
 }
 
-initDate();
-renderStrip();
-supabaseLoad(function(){
-  renderStrip();
-  renderWorkout();
-});
+startApp();
 </script>
 </body>
 </html>
