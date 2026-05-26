@@ -51,7 +51,7 @@ nav{background:var(--surf);border-bottom:1px solid var(--bdr);display:flex}
 .sets-hdr{display:grid;grid-template-columns:22px 1fr 1fr 28px;gap:5px;font-family:'DM Mono',monospace;font-size:8px;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);padding:7px 0 4px;border-top:1px solid var(--bdr)}
 .sr{display:grid;grid-template-columns:22px 1fr 1fr 28px;gap:5px;align-items:center;margin-bottom:5px}
 .snum{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);text-align:center}
-.sinp{background:var(--surf2);border:1px solid var(--bdr2);border-radius:6px;padding:8px 6px;font-family:'DM Mono',monospace;font-size:14px;color:var(--text);text-align:center;width:100%;transition:border-color .15s}
+.sinp{background:var(--surf2);border:1px solid var(--bdr2);border-radius:6px;padding:8px 6px;font-family:'DM Mono',monospace;font-size:16px;color:var(--text);text-align:center;width:100%;transition:border-color .15s}
 .sinp:focus{outline:none;border-color:var(--acc)}
 .sinp::placeholder{color:var(--dim)}
 .delbtn{background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px;padding:4px;border-radius:4px;transition:color .15s;text-align:center}
@@ -62,7 +62,7 @@ nav{background:var(--surf);border-bottom:1px solid var(--bdr);display:flex}
 .note-lbl{font-family:'DM Mono',monospace;font-size:8px;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted);margin-bottom:5px;display:flex;align-items:center;gap:6px}
 .note-lbl span{color:var(--bdr2)}
 .lastnote{font-size:11px;color:var(--muted);font-style:italic;line-height:1.5;padding:6px 8px;background:var(--bg);border-radius:5px;border:1px dashed var(--bdr2);margin-bottom:6px;opacity:.65}
-.noteinp{width:100%;background:var(--surf2);border:1px solid var(--bdr2);border-radius:6px;padding:8px 10px;font-family:'DM Sans',sans-serif;font-size:12px;color:var(--text);resize:none;line-height:1.5;transition:border-color .15s;min-height:60px}
+.noteinp{width:100%;background:var(--surf2);border:1px solid var(--bdr2);border-radius:6px;padding:8px 10px;font-family:'DM Sans',sans-serif;font-size:16px;color:var(--text);resize:none;line-height:1.5;transition:border-color .15s;min-height:60px}
 .noteinp:focus{outline:none;border-color:var(--acc)}
 .noteinp::placeholder{color:var(--bdr2);font-style:italic}
 .savebar{position:fixed;bottom:0;left:0;right:0;background:var(--surf);border-top:1px solid var(--bdr);padding:12px 16px;z-index:50}
@@ -112,7 +112,7 @@ nav{background:var(--surf);border-bottom:1px solid var(--bdr);display:flex}
 }
 
 .psearchbox{background:var(--surf);border:1px solid var(--bdr);border-radius:10px;padding:10px;margin-bottom:14px}
-.psearch{width:100%;background:var(--surf2);border:1px solid var(--bdr2);border-radius:7px;padding:10px 12px;color:var(--text);font-family:'DM Mono',monospace;font-size:11px;text-transform:uppercase;letter-spacing:1px}
+.psearch{width:100%;background:var(--surf2);border:1px solid var(--bdr2);border-radius:7px;padding:10px 12px;color:var(--text);font-family:'DM Mono',monospace;font-size:16px;text-transform:uppercase;letter-spacing:1px}
 .psearch:focus{outline:none;border-color:var(--acc)}
 .pselected{font-family:'DM Mono',monospace;font-size:10px;color:var(--acc);text-transform:uppercase;letter-spacing:1px;margin-top:9px}
 .poptions{
@@ -157,6 +157,7 @@ nav{background:var(--surf);border-bottom:1px solid var(--bdr);display:flex}
   <div id="hlist"></div>
 </div>
 <div class="page" id="pg-progress">
+<div id="pvol"></div>
 <div class="psearchbox">
   <input id="psearch" class="psearch" type="text" placeholder="Search exercise..." oninput="renderExerciseOptions()">
   <div id="pselected" class="pselected">Body Weight</div>
@@ -174,6 +175,7 @@ nav{background:var(--surf);border-bottom:1px solid var(--bdr);display:flex}
 
   var progressExercises = [];
 var currentExercise = 'Body Weight';
+var progressMetric = 'weight';
 var DAYS = [
   { id:"mon", label:"MON", tag:"Home", type:"Home — Upper Body", badge:"bh",
     sections:[
@@ -371,6 +373,7 @@ function getPrev(exName) {
     var s=hist[i];
     if(s.ex && s.ex[exName] && s.ex[exName].length>0){
       var sets=s.ex[exName];
+      if(!sets.some(function(x){ return x.reps||x.weight; })) continue;
       var mw=Math.max.apply(null,sets.map(function(x){return parseFloat(x.weight)||0;}));
       return {sets:sets, mw:mw};
     }
@@ -381,6 +384,28 @@ function getPrev(exName) {
 function getTargetSetCount(target) {
   var match = String(target).match(/^(\d+)\s*x/i);
   return match ? parseInt(match[1]) : 1;
+}
+
+function isTimeBased(t) {
+  var s = String(t);
+  // "NxM sec/min" — the rep-slot is a duration (e.g. "3x30 sec", "5x30 sec on/off")
+  if (/x\s*\d[\d\-]*\s*(sec|min)/i.test(s)) return true;
+  // bare time target, no "x" (e.g. "2 min", "5 min easy", "8 min")
+  if (/^\d+\s*(sec|min)/i.test(s)) return true;
+  return false;
+}
+
+function isExTimeBased(exName) {
+  for (var di = 0; di < DAYS.length; di++) {
+    var secs = DAYS[di].sections;
+    for (var si = 0; si < secs.length; si++) {
+      var exs = secs[si].exercises;
+      for (var ei = 0; ei < exs.length; ei++) {
+        if (exs[ei].n === exName) return isTimeBased(exs[ei].t);
+      }
+    }
+  }
+  return false;
 }
 
 function renderWorkout() {
@@ -424,6 +449,7 @@ if(!sets){
         ? (prev.mw>0 ? 'Last: '+prev.mw+'lbs' : 'Last: '+prev.sets[0].reps+' reps')
         : 'No history';
 
+      var isTime = isTimeBased(ex.t);
       html += '<div class="ec" id="ec_'+eid+'" data-did="'+did+'" data-ei="'+ei+'" data-sname="'+encodeURIComponent(sec.name)+'">';
       html += '<div class="ech" data-action="toggle">';
       html += '<div class="ecname">'+ex.n+'</div>';
@@ -435,7 +461,7 @@ if(!sets){
       if(ex.note) html += '<div class="ecnote">'+ex.note+'</div>';
       if(ex.pair) html += '<div class="pair-tag">'+ex.pair+'</div>';
       if(prev && prev.sets.length>0){
-        html += '<div class="prev-hdr"><div></div><div>PREV REPS</div><div>PREV WT</div><div></div></div>';
+        html += '<div class="prev-hdr"><div></div><div>'+(isTime?'PREV TIME':'PREV REPS')+'</div><div>PREV WT</div><div></div></div>';
         prev.sets.slice(0,4).forEach(function(s,si){
           html += '<div class="prev-r">'
             +'<div class="pc" style="font-size:9px">'+(si+1)+'</div>'
@@ -444,7 +470,7 @@ if(!sets){
             +'<div></div></div>';
         });
       }
-      html += '<div class="sets-hdr"><div>#</div><div>REPS</div><div>LBS</div><div></div></div>';
+      html += '<div class="sets-hdr"><div>#</div><div>'+(isTime?'TIME':'REPS')+'</div><div>LBS</div><div></div></div>';
       html += '<div class="setlist">';
       sets.forEach(function(s,si){
         html += makeSetRow(si, s.reps, s.weight);
@@ -620,7 +646,12 @@ var cleanData = {};
 var bodyWeight = data.bodyWeight || '';
 
 Object.keys(data).forEach(function(k){
-  if(k.indexOf('__note')===-1 && k !== 'bodyWeight') cleanData[k] = data[k];
+  if(k.indexOf('__note')===-1 && k !== 'bodyWeight'){
+    var sets = data[k];
+    if(Array.isArray(sets) && sets.some(function(s){ return s.reps || s.weight; })){
+      cleanData[k] = sets;
+    }
+  }
 });
 
   var now = new Date();
@@ -666,10 +697,12 @@ function renderHistory() {
       +exKeys.map(function(k){
         var sets=entry.ex[k];
         if(!sets||sets.length===0)return'';
+        if(!sets.some(function(s){ return s.reps||s.weight; }))return'';
+        var exIsTime = isExTimeBased(k);
         return '<div class="hex">'+k+'</div>'
           +sets.map(function(s,i){
             return '<div class="hset"><span class="sn">Set '+(i+1)+'</span>'
-              +'<span>'+(s.reps||'--')+' reps</span>'
+              +'<span>'+(s.reps||'--')+(exIsTime?' secs':' reps')+'</span>'
               +'<span>'+(s.weight?s.weight+' lbs':'--')+'</span></div>';
           }).join('');
       }).join('')
@@ -696,6 +729,25 @@ document.getElementById('hlist').addEventListener('click', function(e){
   }
 });
 
+function calcLifetimeVolume() {
+  var total = 0;
+  hist.forEach(function(s){
+    if(!s.ex) return;
+    Object.keys(s.ex).forEach(function(k){
+      var sets = s.ex[k];
+      if(!sets) return;
+      sets.forEach(function(set){
+        total += (parseFloat(set.reps)||0) * (parseFloat(set.weight)||0);
+      });
+    });
+  });
+  return total;
+}
+
+function fmtLbs(n) {
+  return Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',') + ' lbs';
+}
+
 function renderProgressPage() {
   var all=[];
 
@@ -712,6 +764,22 @@ function renderProgressPage() {
 
   progressExercises = all;
   currentExercise = currentExercise || 'Body Weight';
+
+  var vol = calcLifetimeVolume();
+  var volEl = document.getElementById('pvol');
+  if(vol > 0){
+    var tons = vol / 2000;
+    var sub = tons >= 1 ? '<span style="font-family:\'DM Mono\',monospace;font-size:10px;color:var(--muted)">'+tons.toFixed(1)+' tons</span>' : '';
+    volEl.innerHTML = '<div class="prrow" style="background:#c8f13510;border:1px solid #c8f13525;margin-bottom:14px;align-items:flex-end">'
+      +'<span class="prlbl" style="color:var(--acc2)">Lifetime Volume Lifted</span>'
+      +'<span style="text-align:right">'
+        +'<div class="prval" style="color:var(--acc);line-height:1">'+fmtLbs(vol)+'</div>'
+        +sub
+      +'</span>'
+      +'</div>';
+  } else {
+    volEl.innerHTML = '';
+  }
 
   document.getElementById('pselected').textContent = currentExercise;
   renderExerciseOptions();
@@ -748,88 +816,140 @@ document.getElementById('poptions').addEventListener('click', function(e){
   renderProgress();
 });
 
+document.getElementById('pcontent').addEventListener('click', function(e){
+  var btn = e.target.closest('[data-metric]');
+  if(!btn) return;
+  progressMetric = btn.dataset.metric;
+  renderProgress();
+});
+
 
 function renderProgress() {
-var ex = currentExercise || 'Body Weight';
-  var pts=[];
-  if (ex === 'Body Weight') {
-  hist.forEach(function(s){
-    if(s.bodyWeight){
-      pts.push({
-        date: s.date,
-        mw: parseFloat(s.bodyWeight) || 0,
-        mr: 0
-      });
-    }
-  });
+  var ex = currentExercise || 'Body Weight';
+  var pts = [];
 
-  if(pts.length===0){
-    document.getElementById('pcontent').innerHTML='<div class="empty">No body weight data yet.<br>Save a session with body weight first!</div>';
+  if (ex === 'Body Weight') {
+    hist.forEach(function(s){
+      if(s.bodyWeight){
+        pts.push({ date: s.date, mw: parseFloat(s.bodyWeight) || 0 });
+      }
+    });
+    if(pts.length===0){
+      document.getElementById('pcontent').innerHTML='<div class="empty">No body weight data yet.<br>Save a session with body weight first!</div>';
+      return;
+    }
+    var latest = pts[pts.length-1].mw;
+    var diff = pts.length > 1 ? latest - pts[0].mw : 0;
+    var html = '';
+    html += '<div class="prrow" style="background:#c8f13510;border:1px solid #c8f13525">'
+      +'<span class="prlbl" style="color:var(--acc2)">Latest Weight</span>'
+      +'<span class="prval" style="color:var(--acc)">'+latest+' lbs</span></div>';
+    if(pts.length > 1){
+      var ds = diff >= 0 ? '+'+diff.toFixed(1) : diff.toFixed(1);
+      html += '<div class="prrow" style="background:#3a8fff10;border:1px solid #3a8fff25">'
+        +'<span class="prlbl" style="color:#5599cc">Change</span>'
+        +'<span class="prval" style="color:var(--blue)">'+ds+' lbs</span></div>';
+    }
+    html += '<div class="pcard"><div class="pctitle">Body Weight Chart</div><canvas id="wc" height="150"></canvas></div>';
+    html += '<div class="pcard"><div class="pctitle">Body Weight Log</div>'
+      +pts.map(function(p){
+        return '<div class="prow"><span class="prowd">'+p.date+'</span><span class="prowv">'+p.mw+' lbs</span></div>';
+      }).join('')+'</div>';
+    document.getElementById('pcontent').innerHTML = html;
+    if(pts.length > 1) drawChart('wc', pts.map(function(p){return p.date;}), pts.map(function(p){return p.mw;}), 'weight');
     return;
   }
 
-  var latest = pts[pts.length-1].mw;
-  var diff = pts.length > 1 ? latest - pts[0].mw : 0;
-
-  var html = '';
-  html += '<div class="prrow" style="background:#c8f13510;border:1px solid #c8f13525">'
-    +'<span class="prlbl" style="color:var(--acc2)">Latest Weight</span>'
-    +'<span class="prval" style="color:var(--acc)">'+latest+' lbs</span></div>';
-
-  if(pts.length > 1){
-    var ds = diff >= 0 ? '+'+diff.toFixed(1) : diff.toFixed(1);
-    html += '<div class="prrow" style="background:#3a8fff10;border:1px solid #3a8fff25">'
-      +'<span class="prlbl" style="color:#5599cc">Change</span>'
-      +'<span class="prval" style="color:var(--blue)">'+ds+' lbs</span></div>';
-  }
-
-  html += '<div class="pcard"><div class="pctitle">Body Weight Chart</div><canvas id="wc" height="150"></canvas></div>';
-  html += '<div class="pcard"><div class="pctitle">Body Weight Log</div>'
-    +pts.map(function(p){
-      return '<div class="prow"><span class="prowd">'+p.date+'</span>'
-        +'<span class="prowv">'+p.mw+' lbs</span></div>';
-    }).join('')+'</div>';
-
-  document.getElementById('pcontent').innerHTML = html;
-
-  if(pts.length > 1) drawChart('wc', pts.map(function(p){return p.date;}), pts.map(function(p){return p.mw;}));
-  return;
-}
   hist.forEach(function(s){
-    if(s.ex&&s.ex[ex]&&s.ex[ex].length>0){
-      var sets=s.ex[ex];
-      var mw=Math.max.apply(null,sets.map(function(x){return parseFloat(x.weight)||0;}));
-      var mr=Math.max.apply(null,sets.map(function(x){return parseFloat(x.reps)||0;}));
-      pts.push({date:s.date,mw:mw,mr:mr});
+    if(s.ex && s.ex[ex] && s.ex[ex].length>0){
+      var sets = s.ex[ex];
+      var mw = Math.max.apply(null, sets.map(function(x){ return parseFloat(x.weight)||0; }));
+      var mr = Math.max.apply(null, sets.map(function(x){ return parseFloat(x.reps)||0; }));
+      var bw = mw === 0;
+      var vol = bw
+        ? sets.reduce(function(a,x){ return a+(parseFloat(x.reps)||0); }, 0)
+        : sets.reduce(function(a,x){ return a+(parseFloat(x.reps)||0)*(parseFloat(x.weight)||0); }, 0);
+      pts.push({date:s.date, mw:mw, mr:mr, vol:vol, bw:bw});
     }
   });
+
   if(pts.length===0){
     document.getElementById('pcontent').innerHTML='<div class="empty">No data yet.<br>Log and save a session first!</div>';
     return;
   }
-  var prW=Math.max.apply(null,pts.map(function(p){return p.mw;}));
-  var diff=pts[pts.length-1].mw - pts[0].mw;
-  var html='';
-  if(prW>0) html+='<div class="prrow" style="background:#c8f13510;border:1px solid #c8f13525">'
-    +'<span class="prlbl" style="color:var(--acc2)">All-Time PR</span>'
-    +'<span class="prval" style="color:var(--acc)">'+prW+' lbs</span></div>';
-  if(pts.length>1&&pts[0].mw>0){
-    var ds=diff>=0?'+'+diff:''+diff;
-    html+='<div class="prrow" style="background:#3a8fff10;border:1px solid #3a8fff25">'
-      +'<span class="prlbl" style="color:#5599cc">Since Day 1</span>'
-      +'<span class="prval" style="color:var(--blue)">'+ds+' lbs</span></div>';
+
+  var isBodyweight = pts.every(function(p){ return p.bw; });
+  var isTimeEx = isExTimeBased(ex);
+  var repsLabel = isTimeEx ? 'Max Time' : 'Max Reps';
+  var repsUnit  = isTimeEx ? ' secs' : ' reps';
+  var html = '<div class="frow" style="margin-bottom:8px">'
+    + ['weight','reps','volume'].map(function(m){
+      var label = m==='weight' ? 'Weight' : m==='reps' ? repsLabel : 'Volume';
+      return '<button class="fbtn'+(progressMetric===m?' on':'')+'" data-metric="'+m+'">'+label+'</button>';
+    }).join('') + '</div>';
+
+  if(progressMetric === 'reps'){
+    var prR = Math.max.apply(null, pts.map(function(p){ return p.mr; }));
+    html += '<div class="prrow" style="background:#22d3ee10;border:1px solid #22d3ee25">'
+      +'<span class="prlbl" style="color:var(--cyan)">Best Set</span>'
+      +'<span class="prval" style="color:var(--cyan)">'+prR+repsUnit+'</span></div>';
+    html += '<div class="pcard"><div class="pctitle">'+repsLabel+' Chart</div><canvas id="wc" height="150"></canvas></div>';
+    html += '<div class="pcard"><div class="pctitle">Session Log</div>'
+      + pts.map(function(p){
+        return '<div class="prow"><span class="prowd">'+p.date+'</span><span class="prowv">'+p.mr+repsUnit+'</span></div>';
+      }).join('') + '</div>';
+  } else if(progressMetric === 'volume'){
+    var volUnit = (isBodyweight || isTimeEx) ? repsUnit : ' lbs';
+    var volTitle = isTimeEx ? 'Total Time' : isBodyweight ? 'Total Reps' : 'Total Tonnage';
+    var prVol = Math.max.apply(null, pts.map(function(p){ return p.vol; }));
+    html += '<div class="prrow" style="background:#3a8fff10;border:1px solid #3a8fff25">'
+      +'<span class="prlbl" style="color:var(--blue)">Best Session</span>'
+      +'<span class="prval" style="color:var(--blue)">'+prVol+volUnit+'</span></div>';
+    html += '<div class="pcard"><div class="pctitle">'+volTitle+' Chart</div><canvas id="wc" height="150"></canvas></div>';
+    html += '<div class="pcard"><div class="pctitle">Session Log</div>'
+      + pts.map(function(p){
+        return '<div class="prow"><span class="prowd">'+p.date+'</span><span class="prowv">'+p.vol+volUnit+'</span></div>';
+      }).join('') + '</div>';
+  } else { // weight
+    var prW = Math.max.apply(null, pts.map(function(p){ return p.mw; }));
+    var diff = pts[pts.length-1].mw - pts[0].mw;
+    if(prW > 0){
+      html += '<div class="prrow" style="background:#c8f13510;border:1px solid #c8f13525">'
+        +'<span class="prlbl" style="color:var(--acc2)">All-Time PR</span>'
+        +'<span class="prval" style="color:var(--acc)">'+prW+' lbs</span></div>';
+      if(pts.length>1){
+        var ds = diff>=0 ? '+'+diff : ''+diff;
+        html += '<div class="prrow" style="background:#3a8fff10;border:1px solid #3a8fff25">'
+          +'<span class="prlbl" style="color:#5599cc">Since Day 1</span>'
+          +'<span class="prval" style="color:var(--blue)">'+ds+' lbs</span></div>';
+      }
+    }
+    html += '<div class="pcard"><div class="pctitle">Weight Chart</div><canvas id="wc" height="150"></canvas></div>';
+    html += '<div class="pcard"><div class="pctitle">Session Log</div>'
+      + pts.map(function(p){
+        return '<div class="prow"><span class="prowd">'+p.date+'</span>'
+          +'<span class="prowv">'+(p.mw>0 ? p.mw+' lbs' : p.mr>0 ? p.mr+' reps' : '--')+'</span></div>';
+      }).join('') + '</div>';
   }
-  html+='<div class="pcard"><div class="pctitle">Weight Chart</div><canvas id="wc" height="150"></canvas></div>';
-  html+='<div class="pcard"><div class="pctitle">Session Log</div>'
-    +pts.map(function(p){
-      return '<div class="prow"><span class="prowd">'+p.date+'</span>'
-        +'<span class="prowv">'+(p.mw>0?p.mw+' lbs':'')+(p.mr>0?' x '+p.mr+' reps':'')+'</span></div>';
-    }).join('')+'</div>';
-  document.getElementById('pcontent').innerHTML=html;
-  if(pts.length>1) drawChart('wc',pts.map(function(p){return p.date;}),pts.map(function(p){return p.mw;}));
+
+  document.getElementById('pcontent').innerHTML = html;
+
+  if(pts.length > 1){
+    var chartVals, chartMetric;
+    if(progressMetric === 'reps'){ chartVals = pts.map(function(p){ return p.mr; }); chartMetric = 'reps'; }
+    else if(progressMetric === 'volume'){ chartVals = pts.map(function(p){ return p.vol; }); chartMetric = 'volume'; }
+    else if(prW > 0){ chartVals = pts.map(function(p){ return p.mw; }); chartMetric = 'weight'; }
+    if(chartVals) drawChart('wc', pts.map(function(p){ return p.date; }), chartVals, chartMetric);
+  }
 }
 
-function drawChart(id,labels,vals){
+function drawChart(id,labels,vals,metric){
+  var palette = {
+    weight: {line:'#c8f135', g0:'#c8f13528', g1:'#c8f13500'},
+    reps:   {line:'#22d3ee', g0:'#22d3ee28', g1:'#22d3ee00'},
+    volume: {line:'#3a8fff', g0:'#3a8fff28', g1:'#3a8fff00'}
+  };
+  var c = palette[metric] || palette.weight;
   var cv=document.getElementById(id); if(!cv)return;
   var W=cv.offsetWidth||300, H=150;
   cv.width=W; cv.height=H;
@@ -848,15 +968,15 @@ function drawChart(id,labels,vals){
   }
   var pts=vals.map(function(v,i){return{x:p.l+i*xs,y:p.t+cH-((v-mn)/rng)*cH};});
   var g=ctx.createLinearGradient(0,p.t,0,p.t+cH);
-  g.addColorStop(0,'#c8f13528');g.addColorStop(1,'#c8f13500');
+  g.addColorStop(0,c.g0);g.addColorStop(1,c.g1);
   ctx.beginPath();ctx.moveTo(pts[0].x,pts[0].y);
   for(var j=1;j<pts.length;j++)ctx.lineTo(pts[j].x,pts[j].y);
   ctx.lineTo(pts[pts.length-1].x,p.t+cH);ctx.lineTo(pts[0].x,p.t+cH);
   ctx.closePath();ctx.fillStyle=g;ctx.fill();
   ctx.beginPath();ctx.moveTo(pts[0].x,pts[0].y);
   for(var k=1;k<pts.length;k++)ctx.lineTo(pts[k].x,pts[k].y);
-  ctx.strokeStyle='#c8f135';ctx.lineWidth=2;ctx.stroke();
-  pts.forEach(function(pt){ctx.beginPath();ctx.arc(pt.x,pt.y,3.5,0,Math.PI*2);ctx.fillStyle='#c8f135';ctx.fill();});
+  ctx.strokeStyle=c.line;ctx.lineWidth=2;ctx.stroke();
+  pts.forEach(function(pt){ctx.beginPath();ctx.arc(pt.x,pt.y,3.5,0,Math.PI*2);ctx.fillStyle=c.line;ctx.fill();});
   ctx.fillStyle='#475569';ctx.font='9px monospace';ctx.textAlign='center';
   if(labels.length<=5){labels.forEach(function(l,i){ctx.fillText(l.split(',')[0],pts[i].x,H-5);});}
   else{ctx.fillText(labels[0].split(',')[0],pts[0].x,H-5);ctx.fillText(labels[labels.length-1].split(',')[0],pts[pts.length-1].x,H-5);}
