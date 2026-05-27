@@ -11,7 +11,7 @@
 :root{
   --bg:#080808;--surf:#0f0f0f;--surf2:#161616;--bdr:#1e1e1e;--bdr2:#2a2a2a;
   --text:#e2e8f0;--mid:#94a3b8;--muted:#475569;--dim:#2a2a2a;
-  --acc:#c8f135;--acc2:#8aaa1f;
+  --acc:#c084fc;--acc2:#9333ea;
   --blue:#3a8fff;--cyan:#22d3ee;--red:#ef4444;
 }
 body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;padding-bottom:88px}
@@ -27,7 +27,7 @@ nav{background:var(--surf);border-bottom:1px solid var(--bdr);display:flex}
 .dstrip{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;margin-bottom:18px}
 .dbtn{background:var(--surf);border:1px solid var(--bdr);border-radius:8px;padding:8px 3px;text-align:center;cursor:pointer;transition:border-color .15s}
 .dbtn:hover{border-color:var(--muted)}
-.dbtn.on{border-color:var(--acc);background:#c8f13510}
+.dbtn.on{border-color:var(--acc);background:#c084fc10}
 .dbtn .dl{font-family:'DM Mono',monospace;font-size:8px;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:2px}
 .dbtn.on .dl{color:var(--acc2)}
 .dbtn .dn{font-family:'Bebas Neue',sans-serif;font-size:16px;color:var(--text);display:block}
@@ -85,7 +85,7 @@ nav{background:var(--surf);border-bottom:1px solid var(--bdr);display:flex}
 .delsess:active{border-color:var(--red);color:var(--red)}
 .badge{font-family:'DM Mono',monospace;font-size:8px;text-transform:uppercase;letter-spacing:1px;padding:2px 8px;border-radius:20px}
 .bs{background:#3a8fff18;color:var(--blue);border:1px solid #3a8fff30}
-.bh{background:#c8f13512;color:var(--acc2);border:1px solid #c8f13525}
+.bh{background:#c084fc12;color:var(--acc2);border:1px solid #c084fc25}
 .bm{background:#22d3ee12;color:var(--cyan);border:1px solid #22d3ee25}
 .psel{background:var(--surf);border:1px solid var(--bdr);border-radius:8px;padding:10px 12px;color:var(--text);font-family:'DM Mono',monospace;font-size:11px;width:100%;margin-bottom:16px;appearance:none}
 .psel:focus{outline:none;border-color:var(--acc)}
@@ -121,7 +121,7 @@ nav{background:var(--surf);border-bottom:1px solid var(--bdr);display:flex}
   padding-top:8px;
 }
 .popt{width:100%;text-align:left;background:none;border:none;color:var(--muted);font-family:'DM Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:1px;padding:8px 6px;border-radius:6px}
-.popt.on,.popt:active{background:#c8f13510;color:var(--acc)}
+.popt.on,.popt:active{background:#c084fc10;color:var(--acc)}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -770,7 +770,7 @@ function renderProgressPage() {
   if(vol > 0){
     var tons = vol / 2000;
     var sub = tons >= 1 ? '<span style="font-family:\'DM Mono\',monospace;font-size:10px;color:var(--muted)">'+tons.toFixed(1)+' tons</span>' : '';
-    volEl.innerHTML = '<div class="prrow" style="background:#c8f13510;border:1px solid #c8f13525;margin-bottom:14px;align-items:flex-end">'
+    volEl.innerHTML = '<div class="prrow" style="background:#c084fc10;border:1px solid #c084fc25;margin-bottom:14px;align-items:flex-end">'
       +'<span class="prlbl" style="color:var(--acc2)">Lifetime Volume Lifted</span>'
       +'<span style="text-align:right">'
         +'<div class="prval" style="color:var(--acc);line-height:1">'+fmtLbs(vol)+'</div>'
@@ -841,7 +841,7 @@ function renderProgress() {
     var latest = pts[pts.length-1].mw;
     var diff = pts.length > 1 ? latest - pts[0].mw : 0;
     var html = '';
-    html += '<div class="prrow" style="background:#c8f13510;border:1px solid #c8f13525">'
+    html += '<div class="prrow" style="background:#c084fc10;border:1px solid #c084fc25">'
       +'<span class="prlbl" style="color:var(--acc2)">Latest Weight</span>'
       +'<span class="prval" style="color:var(--acc)">'+latest+' lbs</span></div>';
     if(pts.length > 1){
@@ -852,7 +852,8 @@ function renderProgress() {
     }
     html += '<div class="pcard"><div class="pctitle">Body Weight Chart</div><canvas id="wc" height="150"></canvas></div>';
     html += '<div class="pcard"><div class="pctitle">Body Weight Log</div>'
-      +pts.map(function(p){
+      +'<div class="prow"><span class="prowd">'+pts[0].date+' <span style="font-size:10px;color:var(--acc2);opacity:0.7">First</span></span><span class="prowv">'+pts[0].mw+' lbs</span></div>'
+      +pts.slice(1).reverse().map(function(p){
         return '<div class="prow"><span class="prowd">'+p.date+'</span><span class="prowv">'+p.mw+' lbs</span></div>';
       }).join('')+'</div>';
     document.getElementById('pcontent').innerHTML = html;
@@ -895,7 +896,8 @@ function renderProgress() {
       +'<span class="prval" style="color:var(--cyan)">'+prR+repsUnit+'</span></div>';
     html += '<div class="pcard"><div class="pctitle">'+repsLabel+' Chart</div><canvas id="wc" height="150"></canvas></div>';
     html += '<div class="pcard"><div class="pctitle">Session Log</div>'
-      + pts.map(function(p){
+      + '<div class="prow"><span class="prowd">'+pts[0].date+' <span style="font-size:10px;color:var(--acc2);opacity:0.7">First</span></span><span class="prowv">'+pts[0].mr+repsUnit+'</span></div>'
+      + pts.slice(1).reverse().map(function(p){
         return '<div class="prow"><span class="prowd">'+p.date+'</span><span class="prowv">'+p.mr+repsUnit+'</span></div>';
       }).join('') + '</div>';
   } else if(progressMetric === 'volume'){
@@ -907,14 +909,15 @@ function renderProgress() {
       +'<span class="prval" style="color:var(--blue)">'+prVol+volUnit+'</span></div>';
     html += '<div class="pcard"><div class="pctitle">'+volTitle+' Chart</div><canvas id="wc" height="150"></canvas></div>';
     html += '<div class="pcard"><div class="pctitle">Session Log</div>'
-      + pts.map(function(p){
+      + '<div class="prow"><span class="prowd">'+pts[0].date+' <span style="font-size:10px;color:var(--acc2);opacity:0.7">First</span></span><span class="prowv">'+pts[0].vol+volUnit+'</span></div>'
+      + pts.slice(1).reverse().map(function(p){
         return '<div class="prow"><span class="prowd">'+p.date+'</span><span class="prowv">'+p.vol+volUnit+'</span></div>';
       }).join('') + '</div>';
   } else { // weight
     var prW = Math.max.apply(null, pts.map(function(p){ return p.mw; }));
     var diff = pts[pts.length-1].mw - pts[0].mw;
     if(prW > 0){
-      html += '<div class="prrow" style="background:#c8f13510;border:1px solid #c8f13525">'
+      html += '<div class="prrow" style="background:#c084fc10;border:1px solid #c084fc25">'
         +'<span class="prlbl" style="color:var(--acc2)">All-Time PR</span>'
         +'<span class="prval" style="color:var(--acc)">'+prW+' lbs</span></div>';
       if(pts.length>1){
@@ -926,7 +929,9 @@ function renderProgress() {
     }
     html += '<div class="pcard"><div class="pctitle">Weight Chart</div><canvas id="wc" height="150"></canvas></div>';
     html += '<div class="pcard"><div class="pctitle">Session Log</div>'
-      + pts.map(function(p){
+      + '<div class="prow"><span class="prowd">'+pts[0].date+' <span style="font-size:10px;color:var(--acc2);opacity:0.7">First</span></span>'
+          +'<span class="prowv">'+(pts[0].mw>0 ? pts[0].mw+' lbs' : pts[0].mr>0 ? pts[0].mr+' reps' : '--')+'</span></div>'
+      + pts.slice(1).reverse().map(function(p){
         return '<div class="prow"><span class="prowd">'+p.date+'</span>'
           +'<span class="prowv">'+(p.mw>0 ? p.mw+' lbs' : p.mr>0 ? p.mr+' reps' : '--')+'</span></div>';
       }).join('') + '</div>';
@@ -945,7 +950,7 @@ function renderProgress() {
 
 function drawChart(id,labels,vals,metric){
   var palette = {
-    weight: {line:'#c8f135', g0:'#c8f13528', g1:'#c8f13500'},
+    weight: {line:'#c084fc', g0:'#c084fc28', g1:'#c084fc00'},
     reps:   {line:'#22d3ee', g0:'#22d3ee28', g1:'#22d3ee00'},
     volume: {line:'#3a8fff', g0:'#3a8fff28', g1:'#3a8fff00'}
   };
