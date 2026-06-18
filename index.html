@@ -1101,7 +1101,6 @@ async function saveStore() {
     .from('sessions')
     .upsert({
       auth_user_id: currentUser.id,
-      user_id: currentUser.email,
       data: payload,
       updated_at: new Date().toISOString()
     }, {
