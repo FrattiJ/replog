@@ -178,138 +178,173 @@ nav{background:var(--surf);border-bottom:1px solid var(--bdr);display:flex}
 var currentExercise = 'Body Weight';
 var progressMetric = 'weight';
 var DAYS = [
-  { id:"mon", label:"MON", tag:"Home", type:"Home — Upper Body", badge:"bh",
+  { id:"mon", label:"MON", tag:"Home", type:"Home — Movement + Pull", badge:"bh",
     sections:[
       { name:"WARM-UP", exercises:[
-        {n:"Theraband Dislocates",        t:"2x10",           note:"Yellow band. Shoulder mobility."},
-        {n:"Inchworm",                    t:"5 reps",         note:"Walk hands out to plank and back."},
-        {n:"Clamshell (Theraband)",       t:"2x15 each side", note:"Glute med activation."},
-        {n:"Ankle Circles + Foot Doming", t:"1x10 each dir",  note:"Improves ankle mobility."}
+        {n:"Theraband Dislocates",                  t:"2x10",              note:"Yellow band. Shoulder mobility — wide grip, pass overhead and behind."},
+        {n:"World's Greatest Stretch",              t:"3 each side",       note:"Hip flexor + thoracic rotation. Start every session with this."},
+        {n:"Lateral Shuffle",                       t:"3x10 sec each dir", note:"Low athletic stance. Reactive foot positioning — foundational for every sport."},
+        {n:"Clamshell with Band",                   t:"2x15 each side",    note:"Yellow or red band. Glute med activation for lateral knee protection."},
+        {n:"Ankle Circles + Single-Leg Calf Raise", t:"1x10 each",         note:"Ankle prep — affects landings, direction changes, and knee health."}
       ]},
-      { name:"MAIN WORK", exercises:[
-        {n:"Ring Push-Up",         t:"4x10-12", note:"Turn rings out at top.",               pair:"SUPERSET with Ring Row"},
-        {n:"Ring Row",             t:"4x10-12", note:"Feet on floor. Slow eccentric.",        pair:"SUPERSET with Ring Push-Up"},
-        {n:"Ring Dip",             t:"3x8",     note:"Don't go past 90 degrees elbow.",       pair:"SUPERSET with Ring Face Pull"},
-        {n:"Ring Face Pull",       t:"3x12",    note:"Pull to forehead, elbows high.",        pair:"SUPERSET with Ring Dip"},
-        {n:"DB Floor Press",       t:"3x10",    note:"Lie on yoga mat. Shoulder friendly.",   pair:"Alternating with DB Bent-Over Row"},
-        {n:"DB Bent-Over Row",     t:"3x12 ea", note:"Elbow drives straight back.",           pair:"Alternating with DB Floor Press"},
-        {n:"DB Lateral Raise",     t:"3x12",    note:"Start light. Slow, no momentum.",       pair:"Alternating with Theraband Pull-Apart"},
-        {n:"Theraband Pull-Apart", t:"3x15",    note:"Green band. Rear delt and rhomboid.",   pair:"Alternating with DB Lateral Raise"}
+      { name:"POWER + STRENGTH", exercises:[
+        {n:"Ring Push-Up",                t:"4x10-12",   note:"Rings out at top. Unstable surface demands shoulder and core coordination — more athletic carry-over than floor push-up.", pair:"SUPERSET with Ring Row"},
+        {n:"Ring Row",                    t:"4x10-12",   note:"Feet on floor, body angled. Pull chest to rings. Slow eccentric.",                                                         pair:"SUPERSET with Ring Push-Up"},
+        {n:"Ring Dip",                    t:"3x8",       note:"Don't go past 90 degrees elbow. Builds pressing stability, not just strength.",                                            pair:"SUPERSET with Ring Face Pull / High Row"},
+        {n:"Ring Face Pull / High Row",   t:"3x12",      note:"Pull to forehead, elbows high. Best rhomboid and rotator cuff movement at home.",                                          pair:"SUPERSET with Ring Dip"},
+        {n:"DB Floor Press (Bowflex)",    t:"3x8",       note:"Start 30-35 lbs. Floor limits range — shoulder safe. Controlled press, not max weight.",                                  pair:"Alternating with DB Single-Arm Row (Bowflex)"},
+        {n:"DB Single-Arm Row (Bowflex)", t:"3x10 each", note:"Start 35-40 lbs. Single arm demands anti-rotation core stability — athletic carry-over.",                                  pair:"Alternating with DB Floor Press (Bowflex)"},
+        {n:"Pike Push-Up",                t:"3x8",       note:"Hips high. Shoulder press pattern — builds overhead stability for volleyball and overhead sport demands.",                 pair:"Alternating with Theraband Pull-Apart"},
+        {n:"Theraband Pull-Apart",        t:"3x15",      note:"Green band. Rear delts and rhomboids. Critical for rotational sport shoulder health.",                                     pair:"Alternating with Pike Push-Up"}
       ]},
-      { name:"CORE + MOBILITY", exercises:[
-        {n:"Dead Bug",                    t:"3x8 each side",   note:"Lower back stays pressed to floor."},
-        {n:"Single-Leg Balance Hold",     t:"3x30 sec each",   note:"Progress by closing eyes."},
-        {n:"Doorframe Chest Stretch",     t:"2x45 sec",        note:"Elbows at 90 degrees."},
-        {n:"Chin Tuck + Neck Retraction", t:"3x10 hold 3 sec", note:"Gentle. Counteracts forward head posture."},
-        {n:"Legs Up Wall",                t:"2 min",           note:"Recovery tool."}
-      ]}
-    ]
-  },
-  { id:"tue", label:"TUE", tag:"School", type:"School — Upper Body", badge:"bs",
-    sections:[
-      { name:"WARM-UP", exercises:[
-        {n:"Rowing Machine",         t:"5 min easy",    note:"Focus on leg drive first, then pull."},
-        {n:"Band Pull-Apart",        t:"2x15",          note:"Pre-activate rhomboids before pressing."},
-        {n:"Terminal Knee Extension",t:"2x15 each leg", note:"VMO isolation. Protects lateral knee."}
-      ]},
-      { name:"MAIN WORK", exercises:[
-        {n:"Chest Fly Machine",       t:"4x12",  note:"Full range. Slow eccentric.",             pair:"SUPERSET with Rear Delt Fly"},
-        {n:"Rear Delt Fly Machine",   t:"4x15",  note:"Light weight. Squeeze at end.",           pair:"SUPERSET with Chest Fly"},
-        {n:"Chest Press Machine",     t:"4x10",  note:"Don't flare elbows excessively.",         pair:"SUPERSET with Seated Row"},
-        {n:"Seated Row Machine",      t:"4x10",  note:"Squeeze shoulder blades at end.",         pair:"SUPERSET with Chest Press"},
-        {n:"Incline DB Press",        t:"3x10",  note:"Bench at 45 degrees. Control descent.",   pair:"Alternating with Lat Pulldown"},
-        {n:"Lat Pulldown",            t:"3x10",  note:"Lean back slightly, pull to upper chest.", pair:"Alternating with Incline DB Press"},
-        {n:"Tricep Cable Pushdown",   t:"3x15",  note:"Elbows pinned at sides. Full extension.", pair:"Alternating with Preacher Curl"},
-        {n:"Preacher Curl",           t:"3x10",  note:"Full extension at bottom.",               pair:"Alternating with Tricep Pushdown"},
-        {n:"Overhead Press Machine",  t:"3x10",  note:"Machine path is safer for shoulders.",   pair:"Alternating with Assisted Pull-Up"},
-        {n:"Assisted Pull-Up Machine",t:"3x8",   note:"Full range with control.",                pair:"Alternating with Overhead Press"}
-      ]},
-      { name:"CORE + COOLDOWN", exercises:[
-        {n:"Pallof Press (Cable)",   t:"3x10 each side", note:"Anti-rotation core."},
-        {n:"Wall Sit",               t:"3x30-45 sec",    note:"Knees track over toes."},
-        {n:"Rack Chest Stretch",     t:"2x45 sec",       note:"Hold rack uprights, lean forward."},
-        {n:"Calf Raise + Stretch",   t:"2x15 + 30 sec",  note:"Calf tightness affects knee mechanics."}
-      ]}
-    ]
-  },
-  { id:"wed", label:"WED", tag:"School", type:"School — Mobility Day", badge:"bm",
-    sections:[
-      { name:"CARDIO CIRCUIT", exercises:[
-        {n:"Rowing Machine", t:"8 min",           note:"24-26 strokes per min. Leg drive first."},
-        {n:"Stair Climber",  t:"7 min",           note:"Hold rails lightly for balance only."},
-        {n:"Battle Ropes",   t:"5x30 sec on/off", note:"Alternating waves. Slight hip hinge."}
-      ]},
-      { name:"POSTURE + MOBILITY", exercises:[
-        {n:"World's Greatest Stretch",         t:"3x5 each side",   note:"Hip flexor and thoracic rotation combined."},
-        {n:"Kneeling Hip Flexor Stretch",      t:"3x60 sec each",   note:"Padded mat under knee. Top of foot flat."},
-        {n:"Clamshell with Band",              t:"3x20 each side",  note:"Best lateral knee stabilizer you can train."},
-        {n:"Lateral Band Walk",                t:"3x20 each dir",   note:"Hip abductor and glute med work."},
-        {n:"Terminal Knee Extension",          t:"3x15 each leg",   note:"VMO isolation. Anchor band low."},
-        {n:"Thoracic Extension Foam Roller",   t:"2x60 sec",        note:"Counteracts rounded shoulder posture."},
-        {n:"Band External Shoulder Rotation",  t:"3x15 each",       note:"Elbow at 90 degrees. Keeps rotator cuff healthy."},
-        {n:"Ankle Dorsiflexion Stretch",       t:"2x45 sec each",   note:"Knee forward over toes, heel flat."},
-        {n:"90/90 Hip Rotation",               t:"2x60 sec each",   note:"Improves hip rotation, reduces knee stress."},
-        {n:"Chin Tuck + Neck Retraction",      t:"3x10 hold 3 sec", note:"Builds deep neck stability."}
-      ]},
-      { name:"OPTIONAL FINISHER", exercises:[
-        {n:"Weighted Bag Farmers Carry", t:"3x30 sec", note:"Walk tall. Shoulders packed back and down."},
-        {n:"Medicine Ball Slam",         t:"3x8",      note:"Absorb landing with hips."}
-      ]}
-    ]
-  },
-  { id:"thu", label:"THU", tag:"School", type:"School — Lower Body", badge:"bs",
-    sections:[
-      { name:"WARM-UP", exercises:[
-        {n:"Rowing Machine",         t:"5 min easy",         note:""},
-        {n:"Lateral Band Walk",      t:"2x20 each dir",      note:"Glute med activation before knee loading."},
-        {n:"Terminal Knee Extension",t:"2x15 each leg",      note:"Best single prehab move for lateral knee."},
-        {n:"Leg Swings",             t:"10 each dir per leg", note:"Hold rack for balance. Hip mobility."}
-      ]},
-      { name:"MAIN WORK", exercises:[
-        {n:"Leg Extension Machine",    t:"4x12",      note:"3 sec eccentric. Builds VMO.",              pair:"SUPERSET with Leg Curl"},
-        {n:"Leg Curl Machine",         t:"4x12",      note:"3 sec eccentric. Reduces knee force.",      pair:"SUPERSET with Leg Extension"},
-        {n:"Smith Machine Squat",      t:"4x10",      note:"Feet slightly forward. Knees track over toes.", pair:"Alternating with Trap Bar Deadlift"},
-        {n:"Trap Bar Deadlift",        t:"4x8",       note:"Neutral grip handles. Drive through floor.", pair:"Alternating with Smith Squat"},
-        {n:"Step Box Lateral Step-Up", t:"3x10 each", note:"Lead with heel. Builds lateral knee stability.", pair:"Alternating with Cable Pull-Through"},
-        {n:"Cable Pull-Through",       t:"3x12",      note:"Face away. Hip hinge, squeeze glutes at top.", pair:"Alternating with Step-Up"},
-        {n:"Wall Sit",                 t:"3x45 sec",  note:"Thighs parallel. Knees track over toes.",   pair:"Alternating with Clamshell"},
-        {n:"Clamshell with Band",      t:"3x20 each", note:"Glute med is your lateral knee's best friend.", pair:"Alternating with Wall Sit"}
-      ]},
-      { name:"CORE + COOLDOWN", exercises:[
-        {n:"Dead Bug",                  t:"3x8 each side", note:"Core stability without spinal flexion."},
-        {n:"Single-Leg Balance Hold",   t:"3x30 sec each", note:"Progress by closing eyes."},
-        {n:"Standing Quad Stretch",     t:"45 sec each",   note:"Hold rack for balance."},
-        {n:"Standing Hamstring Stretch",t:"60 sec each",   note:""},
-        {n:"Pigeon Pose",               t:"60 sec each",   note:"Padded mat. Keep weight even."},
-        {n:"Ankle Dorsiflexion Stretch",t:"45 sec each",   note:"Heel flat. Knee forward over toes."}
-      ]}
-    ]
-  },
-  { id:"fri", label:"FRI", tag:"Home", type:"Home — Upper Body", badge:"bh",
-    sections:[
-      { name:"WARM-UP", exercises:[
-        {n:"Jumping Jacks",               t:"2x30 sec",       note:""},
-        {n:"Arm Circles + Shoulder Rolls", t:"2x10 each dir", note:""},
-        {n:"Inchworm",                    t:"5 reps",         note:"Walk hands out to plank and back."},
-        {n:"Clamshell (Theraband)",       t:"2x15 each side", note:"Glute med activation."},
-        {n:"Theraband Pull-Apart",        t:"2x15",           note:"Green band. Pre-activate rear delts."}
-      ]},
-      { name:"MAIN WORK", exercises:[
-        {n:"Ring Push-Up",         t:"4x10-15", note:"Rings turned out at top.",             pair:"SUPERSET with Ring Row"},
-        {n:"Ring Row",             t:"4x10-12", note:"Adjust angle for difficulty.",          pair:"SUPERSET with Ring Push-Up"},
-        {n:"Ring Dip",             t:"3x8",     note:"Support hold still builds strength.",   pair:"SUPERSET with Ring Face Pull"},
-        {n:"Ring Face Pull",       t:"3x12",    note:"Pull to forehead, elbows high.",        pair:"SUPERSET with Ring Dip"},
-        {n:"DB Arnold Press",      t:"3x10",    note:"Seated on mat. Start 15-20 lbs.",       pair:"Alternating with DB Bent-Over Row"},
-        {n:"DB Bent-Over Row",     t:"3x12 ea", note:"Elbow drives back, not out.",           pair:"Alternating with DB Arnold Press"},
-        {n:"Diamond Push-Up",      t:"3x8-10",  note:"Elbows track back, not flared wide.",   pair:"Alternating with Theraband Curl"},
-        {n:"Theraband Bicep Curl", t:"3x15",    note:"Stand on band middle, curl both ends.", pair:"Alternating with Diamond Push-Up"}
+      { name:"CORE", exercises:[
+        {n:"Dead Bug with Reach",     t:"3x8 each side",  note:"Extend opposite arm and leg. Trains the diagonal patterns used in every rotational sport."},
+        {n:"Side Plank with Hip Dip", t:"2x10 each side", note:"Lateral core — the most undertrained pattern for rotational sports like golf and volleyball."},
+        {n:"Bear Crawl",              t:"3x20 sec",       note:"Hands and knees hovering 1 inch off floor. Builds contralateral coordination — the movement pattern behind every athletic stride."}
       ]},
       { name:"MOBILITY FINISHER", exercises:[
-        {n:"Single-Leg Balance Hold",     t:"3x30 sec each", note:"Close eyes for a challenge."},
-        {n:"Chin Tuck + Neck Retraction", t:"3x10 hold 3 sec",note:"Counteracts a full week of desk posture."},
-        {n:"Doorframe Chest Stretch",     t:"2x45 sec",      note:"Elbows at 90 degrees. Hold and breathe."},
-        {n:"Spinal Twist (lying)",        t:"60 sec each",   note:"Relax into it."},
-        {n:"Child's Pose",                t:"90 sec",        note:"Wide knees, arms forward."}
+        {n:"Doorframe Chest Stretch",     t:"2x45 sec",         note:"Elbows at 90 degrees. Counters tight chest posture."},
+        {n:"Chin Tuck + Neck Retraction", t:"3x10 hold 3 sec",  note:"Gentle. Desk posture correction."},
+        {n:"90/90 Hip Stretch",           t:"60 sec each side", note:"Hip rotation is the foundation of every rotational sport swing and spike."}
+      ]}
+    ]
+  },
+  { id:"tue", label:"TUE", tag:"School", type:"School — Power + Strength", badge:"bs",
+    sections:[
+      { name:"WARM-UP", exercises:[
+        {n:"Rowing Machine",               t:"5 min easy",    note:"Athletic warm-up. Drive with legs, connect to pull."},
+        {n:"Band Pull-Apart",              t:"2x15",          note:"Rhomboid pre-activation before pressing."},
+        {n:"Terminal Knee Extension (TKE)", t:"2x15 each leg", note:"VMO activation. 2 min investment, major knee protection."},
+        {n:"Lateral Band Walk",            t:"2x15 each dir", note:"Glute med activation. Hip stability for every change of direction."}
+      ]},
+      { name:"POWER BLOCK", exercises:[
+        {n:"Cable Rotational Press (single arm)", t:"4x6 each side", note:"Cable at chest height. Stand perpendicular, rotate from the hips and press away explosively. Light weight — this is power, not strength. Same pattern as a golf swing, volleyball spike, and bowling release."},
+        {n:"Kettlebell Swing",                    t:"4x8",           note:"Hip hinge explosion — not a squat. Drive hips forward aggressively at the top. Builds the posterior chain power behind a volleyball jump and rowing drive."}
+      ]},
+      { name:"STRENGTH", exercises:[
+        {n:"Chest Fly Machine",            t:"3x12",     note:"Full range stretch. Slow eccentric. Joint health and chest opening.",                                                         pair:"SUPERSET with Rear Delt Fly Machine"},
+        {n:"Rear Delt Fly Machine",        t:"3x15",     note:"Light weight. Posture medicine — directly counters desk rounding.",                                                           pair:"SUPERSET with Chest Fly Machine"},
+        {n:"Incline DB Press",             t:"4x8",      note:"Bench ~45 degrees. Shoulder-friendly compound press. Controlled power — not grinding.",                                      pair:"Alternating with Lat Pulldown"},
+        {n:"Lat Pulldown",                 t:"4x8",      note:"Lean back slightly. Pull to upper chest. Vertical pull is critical for volleyball blocking and overhead sport stability.",    pair:"Alternating with Incline DB Press"},
+        {n:"Overhead Press Machine",       t:"3x10",     note:"Machine path keeps shoulders safe. Don't arch aggressively.",                                                                pair:"Alternating with Cable Rotational Row"},
+        {n:"Cable Rotational Row",         t:"3x10 each", note:"Cable at chest height, stand perpendicular, rotate and pull toward body. The pull side of the rotational chain.",          pair:"Alternating with Overhead Press Machine"},
+        {n:"Tricep Cable Pushdown (rope)", t:"3x12",     note:"Elbows pinned. Full extension at bottom.",                                                                                  pair:"Alternating with Assisted Pull-Up Machine"},
+        {n:"Assisted Pull-Up Machine",     t:"3x8",      note:"Full range. Work toward less assistance over time. Vertical pull strength is foundational for overhead sports.",            pair:"Alternating with Tricep Cable Pushdown (rope)"}
+      ]}
+    ]
+  },
+  { id:"wed", label:"WED", tag:"School", type:"School — Athletic Development", badge:"bm",
+    sections:[
+      { name:"CONDITIONING CIRCUIT", exercises:[
+        {n:"Rowing Machine — Interval",        t:"6x45 sec on/off",   note:"Hard = 28-32 strokes/min. Easy = 20 strokes/min. Builds the power endurance your body needs for sustained sport play."},
+        {n:"Lateral Shuffle to Cone",          t:"4x10 sec each dir", note:"Set two marks 10-15 feet apart. Athletic stance, low hips, fast feet. Pickleball and volleyball movement pattern."},
+        {n:"Battle Ropes — Alternating Waves", t:"4x30 sec on/off",   note:"Slight hip hinge. Shoulder-friendly power endurance."},
+        {n:"Box Jump + Stick",                 t:"3x5",               note:"Jump onto box, land softly and hold 2 sec. Landing mechanics matter more than height."}
+      ]},
+      { name:"AGILITY + COORDINATION", exercises:[
+        {n:"Stair Climber — Lateral Step",  t:"5 min",            note:"Face sideways. Alternate sides every minute. Trains lateral hip stability and coordination."},
+        {n:"Single-Leg Hop + Stick",        t:"3x5 each dir/leg", note:"Hop and absorb the landing for 2 full seconds. The diagonal pattern is the most sport-relevant — used in every direction change."},
+        {n:"Kettlebell Goblet Squat — Tempo", t:"3x8",            note:"3 sec down, pause at bottom, drive up. Athletic squat pattern under load. Builds the hip and ankle mobility needed for sport."}
+      ]},
+      { name:"MOBILITY FLOW", exercises:[
+        {n:"World's Greatest Stretch",                    t:"3x5 each side",   note:"Hip flexor + thoracic rotation. The single most sport-transferable mobility drill."},
+        {n:"Thoracic Rotation with Reach (half-kneeling)", t:"3x8 each side",  note:"Kneel on padded mat, rotate upper back and reach overhead. Golf swing mobility — thoracic spine must rotate independently of hips."},
+        {n:"90/90 Hip Rotation",                          t:"2x60 sec each",   note:"Internal and external hip rotation range — critical for every lateral and rotational sport."},
+        {n:"Lateral Band Walk",                           t:"3x20 each dir",   note:"Glute med and hip abductor. Lateral knee stability maintenance."},
+        {n:"Clamshell with Band",                         t:"3x15 each side",  note:"Glute med isolation. Don't rush."},
+        {n:"Terminal Knee Extension (TKE)",               t:"3x15 each leg",   note:"VMO activation and knee prehab."},
+        {n:"Ankle Dorsiflexion Stretch (wall)",            t:"2x45 sec each",   note:"Heel flat, knee forward. Poor ankle mobility loads the knee and limits athletic movement."},
+        {n:"Chin Tuck + Neck Retraction",                 t:"3x10 hold 3 sec", note:"Deep neck stability. Posture under load and overhead demands."}
+      ]}
+    ]
+  },
+  { id:"thu", label:"THU", tag:"School", type:"School — Lower Body + Power", badge:"bs",
+    sections:[
+      { name:"WARM-UP", exercises:[
+        {n:"Rowing Machine",                t:"5 min easy",        note:""},
+        {n:"Lateral Band Walk",             t:"2x20 each dir",     note:"Glute med before knee loading — every single leg day."},
+        {n:"Terminal Knee Extension (TKE)", t:"2x15 each leg",     note:"VMO activation. Non-negotiable."},
+        {n:"Leg Swing",                     t:"10 each dir per leg", note:"Hold rack for balance. Hip mobility before loading."}
+      ]},
+      { name:"POWER BLOCK", exercises:[
+        {n:"Kettlebell Swing", t:"5x8", note:"Hip hinge explosion. Drive hips forward hard at the top. Builds the force production behind a volleyball jump, rowing drive, and golf swing."},
+        {n:"Box Jump + Stick", t:"3x5", note:"Jump onto box, land and hold 2 sec. Focus on soft landing mechanics, not height. Reactive lower body control."}
+      ]},
+      { name:"STRENGTH", exercises:[
+        {n:"Leg Extension Machine",    t:"3x15",     note:"Joint health and VMO — not max strength here. 3 sec eccentric.",                                                          pair:"SUPERSET with Leg Curl Machine"},
+        {n:"Leg Curl Machine",         t:"3x15",     note:"Joint health and hamstring balance. 3 sec eccentric.",                                                                   pair:"SUPERSET with Leg Extension Machine"},
+        {n:"Trap Bar Deadlift",        t:"4x6",      note:"Your heaviest lift of the week. Neutral grip, drive through the floor, stand tall at the top. Total body power.",       pair:"Alternating with Single-Leg RDL (DB)"},
+        {n:"Single-Leg RDL (DB)",      t:"3x8 each", note:"Hold one dumbbell, hinge on one leg. Builds the single-leg hip stability behind every athletic direction change. Start light.", pair:"Alternating with Trap Bar Deadlift"},
+        {n:"Smith Machine Squat",      t:"3x8",      note:"Feet slightly forward. Stop at parallel. Knees track over toes.",                                                       pair:"Alternating with Cable Pull-Through"},
+        {n:"Cable Pull-Through",       t:"3x12",     note:"Hip hinge, face away from cable. Glute and hamstring endurance.",                                                       pair:"Alternating with Smith Machine Squat"},
+        {n:"Step Box Lateral Step-Up", t:"3x10 each", note:"Heel leads. Lateral knee stability. Add DB load over time.",                                                          pair:"Alternating with Clamshell with Band"},
+        {n:"Clamshell with Band",      t:"3x20 each", note:"Glute med endurance. Don't skip.",                                                                                    pair:"Alternating with Step Box Lateral Step-Up"}
+      ]},
+      { name:"ROTATIONAL CORE", exercises:[
+        {n:"Cable Woodchop — High to Low", t:"3x10 each side", note:"Cable high, rotate and chop diagonally toward opposite hip. Golf swing, volleyball spike, pickleball drive — all live in this diagonal pattern."},
+        {n:"Pallof Press",                 t:"3x10 each side", note:"Anti-rotation. Builds the ability to resist unwanted rotation — protects your spine during powerful sport movements."},
+        {n:"Dead Bug with Reach",          t:"3x8 each side",  note:"Diagonal pattern. Lower back flat throughout."}
+      ]},
+      { name:"COOLDOWN", exercises:[
+        {n:"Pigeon Pose",                        t:"60 sec each side", note:"Hip flexor and external rotator. If right knee feels strange, reduce range."},
+        {n:"Standing Hamstring Stretch",         t:"60 sec each",      note:""},
+        {n:"Ankle Dorsiflexion Stretch (wall)",  t:"45 sec each",      note:""}
+      ]}
+    ]
+  },
+  { id:"fri", label:"FRI", tag:"Home", type:"Home — Movement + Push", badge:"bh",
+    sections:[
+      { name:"WARM-UP", exercises:[
+        {n:"Jumping Jacks",            t:"2x30 sec",         note:""},
+        {n:"World's Greatest Stretch", t:"3 each side",      note:"Hip flexor + thoracic rotation. Do this every session."},
+        {n:"Lateral Shuffle",          t:"3x10 sec each dir", note:"Low stance, fast feet. Athletic activation."},
+        {n:"Clamshell with Band",      t:"2x15 each side",   note:"Glute med activation to close out the week."},
+        {n:"Theraband Pull-Apart",     t:"2x15",             note:"Green band. Pre-activate rear delts before pressing."}
+      ]},
+      { name:"POWER + STRENGTH", exercises:[
+        {n:"Ring Push-Up",               t:"4x10-15",   note:"Rings out at top. Unstable surface — builds shoulder stability for overhead sport demands.",                          pair:"SUPERSET with Ring Row"},
+        {n:"Ring Row",                   t:"4x10-12",   note:"Adjust body angle for difficulty. Slow eccentric.",                                                                   pair:"SUPERSET with Ring Push-Up"},
+        {n:"Ring Dip",                   t:"3x8",       note:"Don't go below 90 degree elbow. Rings turned out.",                                                                   pair:"SUPERSET with Ring Face Pull / High Row"},
+        {n:"Ring Face Pull / High Row",  t:"3x12",      note:"Elbows high, pull to forehead. Rhomboid and rotator cuff health.",                                                    pair:"SUPERSET with Ring Dip"},
+        {n:"DB Arnold Press (Bowflex)",  t:"3x10",      note:"Start 15-20 lbs. Rotating press pattern — trains shoulder in multiple planes like overhead sport demands.",           pair:"Alternating with DB Bent-Over Row (Bowflex)"},
+        {n:"DB Bent-Over Row (Bowflex)", t:"3x12 each", note:"Start 35-40 lbs. Single arm for anti-rotation demand.",                                                              pair:"Alternating with DB Arnold Press (Bowflex)"},
+        {n:"Push-Up Variation",          t:"3x10-15",   note:"Standard, wide, or diamond. Bodyweight pressing endurance — the kind of strength that carries over to sport.",       pair:"Alternating with Theraband Bicep Curl"},
+        {n:"Theraband Bicep Curl",       t:"3x15",      note:"Stand on band. Double or triple for resistance. Full extension at bottom.",                                           pair:"Alternating with Push-Up Variation"}
+      ]},
+      { name:"ROTATIONAL CORE", exercises:[
+        {n:"Lying Windshield Wiper (bent knee)", t:"3x10 each side", note:"Lie on back, knees bent to 90 degrees, lower both legs side to side with control. Rotational core — same pattern as a golf swing."},
+        {n:"Side Plank with Hip Dip",            t:"2x10 each side", note:"Lateral core stability — the missing link for rotational sport performance."},
+        {n:"Bear Crawl",                         t:"3x20 sec",       note:"Knees 1 inch off floor. Contralateral coordination — directly builds the movement patterns behind athletic performance."}
+      ]},
+      { name:"MOBILITY FINISHER", exercises:[
+        {n:"Doorframe Chest Stretch",     t:"2x45 sec",         note:"Hold and breathe into it."},
+        {n:"Spinal Twist (lying)",        t:"60 sec each side", note:"Thoracic rotation recovery. Decompress after the week."},
+        {n:"Child's Pose",                t:"90 sec",           note:"Wide knees, arms forward. Full recovery position."},
+        {n:"Chin Tuck + Neck Retraction", t:"3x10 hold 3 sec",  note:"Gentle. Desk posture correction."}
+      ]}
+    ]
+  },
+  { id:"sat", label:"SAT", tag:"Home", type:"Home — Easy Row", badge:"bm",
+    sections:[
+      { name:"THE SESSION", exercises:[
+        {n:"Concept 2 Easy Row", t:"20 min", note:"18-22 strokes/min. Should feel like a 4-5 out of 10 effort. If you can't speak in full sentences, slow down. No intervals, no pushing — just move."}
+      ]},
+      { name:"OPTIONAL ADD-ON", exercises:[
+        {n:"90/90 Hip Stretch",                   t:"60 sec each side", note:"Take advantage of being warmed up. Hips are more receptive to stretching after low-intensity cardio."},
+        {n:"Thoracic Extension over Foam Roller", t:"2x60 sec",         note:"Mid-back decompression. Great after a week of desk sitting."},
+        {n:"World's Greatest Stretch",            t:"2 each side",      note:"Optional. If you have the time and feel like moving."}
+      ]}
+    ]
+  },
+  { id:"sun", label:"SUN", tag:"Home", type:"Home — Easy Row", badge:"bm",
+    sections:[
+      { name:"THE SESSION", exercises:[
+        {n:"Concept 2 Easy Row", t:"20 min", note:"18-22 strokes/min. Conversational pace. 4-5 out of 10 effort. Nasal breathing if possible. This builds your aerobic base — the foundation of long-term health, fat loss, and sport endurance."}
+      ]},
+      { name:"OPTIONAL ADD-ON", exercises:[
+        {n:"Legs Up Wall",              t:"3 min",    note:"Passive recovery. Reduces lower body fatigue going into the new week."},
+        {n:"Doorframe Chest Stretch",   t:"2x45 sec", note:"Counter the week's pressing work."},
+        {n:"Child's Pose",              t:"90 sec",   note:"Full reset before Monday."}
       ]}
     ]
   }
