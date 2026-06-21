@@ -342,7 +342,7 @@ var DAYS = [
   }
 ];
 
-var selDay = 0;
+var selDay = [6, 0, 1, 2, 3, 4, 5][new Date().getDay()]; // Sun=0→6, Mon=1→0, … Sat=6→5
 var sess = {};
 var hist = [];
 var exNotes = {}; // { exName: "last saved note" } — persists forever
